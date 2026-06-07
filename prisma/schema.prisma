@@ -1,0 +1,460 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+enum RoleType {
+  SUPER_ADMIN
+  ORG_ADMIN
+  HR
+  BRANCH_MANAGER
+  EMPLOYEE
+}
+
+enum PermissionType {
+  CREATE
+  READ
+  UPDATE
+  DELETE
+  APPROVE
+}
+
+enum EmployeeStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum LeaveType {
+  ANNUAL
+  CASUAL
+  SICK
+  UNPAID
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+enum AttendanceStatus {
+  PRESENT
+  LATE
+  ABSENT
+  ON_LEAVE
+}
+
+enum HolidayType {
+  NATIONAL
+  STATE
+  ORGANIZATION
+}
+
+enum PayrollStatus {
+  PENDING
+  PAID
+  LOCKED
+}
+
+enum AudienceType {
+  ALL
+  BRANCH
+  DEPARTMENT
+}
+
+enum NotificationType {
+  ATTENDANCE
+  LEAVE
+  PAYROLL
+  HOLIDAY
+  ANNOUNCEMENT
+  SYSTEM
+}
+
+model Organization {
+  id                  String               @id @default(uuid()) @db.Uuid
+  name                String
+  logoUrl             String?
+  subscriptionTier    String               @default("FREE")
+  subscriptionStatus  String               @default("ACTIVE")
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  
+  // Relations
+  branches            Branch[]
+  users               User[]
+  roles               Role[]
+  shifts              Shift[]
+  attendanceRecords   Attendance[]
+  leaves              Leave[]
+  leaveBalances       LeaveBalance[]
+  holidays            Holiday[]
+  payrolls            Payroll[]
+  announcements       Announcement[]
+  auditLogs           AuditLog[]
+  settings            OrgSettings?
+
+  @@map("organizations")
+}
+
+model OrgSettings {
+  id                  String               @id @default(uuid()) @db.Uuid
+  organizationId      String               @unique @db.Uuid
+  organization        Organization         @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  
+  // Shift Rules & Grace
+  graceTimeMinutes    Int                  @default(15)
+  latePenaltyLimit    Int                  @default(3) // 3 late check-ins deducts half day/salary
+  latePenaltyDeduction Float               @default(0.5) // in days of salary
+  workingDaysPerMonth Int                  @default(26)
+  
+  // Notification rules
+  notifyOnLeaveStatus Boolean              @default(true)
+  notifyOnPayrollGen  Boolean              @default(true)
+  
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+
+  @@map("org_settings")
+}
+
+model Branch {
+  id              String         @id @default(uuid()) @db.Uuid
+  organizationId  String         @db.Uuid
+  organization    Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  
+  name            String
+  address         String
+  
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  
+  // Relations
+  employees       Employee[]
+  holidays        Holiday[]
+  announcements   Announcement[]
+  payrolls        Payroll[]
+  attendance      Attendance[]
+  leaves          Leave[]
+
+  // Self relation for manager (could point to employee)
+  managerId       String?        @db.Uuid
+  
+  @@index([organizationId])
+  @@map("branches")
+}
+
+model Role {
+  id              String         @id @default(uuid()) @db.Uuid
+  organizationId  String?        @db.Uuid // Nullable for global system roles
+  organization    Organization?  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  
+  name            String
+  roleType        RoleType       @default(EMPLOYEE)
+  permissions     Permission[]
+  
+  users           User[]
+
+  @@unique([name, organizationId])
+  @@index([organizationId])
+  @@map("roles")
+}
+
+model Permission {
+  id          String         @id @default(uuid()) @db.Uuid
+  action      PermissionType
+  resource    String         // e.g. "EMPLOYEE", "ATTENDANCE", "PAYROLL"
+  
+  roles       Role[]
+
+  @@unique([action, resource])
+  @@map("permissions")
+}
+
+model User {
+  id              String         @id @default(uuid()) @db.Uuid
+  organizationId  String?        @db.Uuid // Nullable for superadmin
+  organization    Organization?  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  
+  name            String
+  email           String         @unique
+  passwordHash    String
+  status          EmployeeStatus @default(ACTIVE)
+  
+  // Role Mapping
+  roleId          String         @db.Uuid
+  role            Role           @relation(fields: [roleId], references: [id])
+  
+  // Device & Sessions
+  refreshTokens   String[]       @default([])
+  deviceTokens    String[]       @default([])
+  
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  // Relations
+  employeeProfile Employee?
+  auditLogs       AuditLog[]
+  notifications   Notification[]
+
+  @@index([organizationId])
+  @@map("users")
+}
+
+model Employee {
+  id              String         @id @default(uuid()) @db.Uuid
+  userId          String         @unique @db.Uuid
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  organizationId  String         @db.Uuid
+  branchId        String         @db.Uuid
+  branch          Branch         @relation(fields: [branchId], references: [id])
+  
+  employeeId      String         // Custom display id (e.g. EMP1001)
+  mobile          String
+  address         String
+  department      String
+  designation     String
+  joiningDate     DateTime
+  baseSalary      Float          @default(0.0)
+  
+  shiftId         String?        @db.Uuid
+  shift           Shift?         @relation(fields: [shiftId], references: [id], onDelete: SetNull)
+  
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  // Relations
+  attendance      Attendance[]
+  leaves          Leave[]
+  leaveBalances   LeaveBalance[]
+  payrolls        Payroll[]
+
+  @@unique([organizationId, employeeId])
+  @@index([organizationId])
+  @@index([branchId])
+  @@map("employees")
+}
+
+model Shift {
+  id              String         @id @default(uuid()) @db.Uuid
+  organizationId  String         @db.Uuid
+  organization    Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  
+  name            String
+  startTime       String         // "HH:MM" (e.g. "09:00")
+  endTime         String         // "HH:MM" (e.g. "18:00")
+  graceTime       Int            @default(15) // Minutes
+  breakDuration   Int            @default(60) // Minutes
+  workingHours    Float          @default(8.0)
+  
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  
+  employees       Employee[]
+
+  @@index([organizationId])
+  @@map("shifts")
+}
+
+model Attendance {
+  id              String            @id @default(uuid()) @db.Uuid
+  organizationId  String            @db.Uuid
+  organization    Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  branchId        String            @db.Uuid
+  branch          Branch            @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  
+  employeeId      String            @db.Uuid
+  employee        Employee          @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  
+  date            DateTime          @db.Date
+  status          AttendanceStatus  @default(PRESENT)
+  
+  checkIn         DateTime
+  checkOut        DateTime?
+  
+  breakIn         DateTime?
+  breakOut        DateTime?
+  breakDuration   Int               @default(0) // Accumulative break duration in minutes
+  workingHours    Float             @default(0.0) // Worked hours for the day
+  
+  notes           String?
+  corrections     Json?             // Array of objects tracking correction requests
+  
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  @@unique([employeeId, date])
+  @@index([organizationId])
+  @@index([branchId])
+  @@index([employeeId])
+  @@index([date])
+  @@map("attendance")
+}
+
+model Leave {
+  id              String         @id @default(uuid()) @db.Uuid
+  organizationId  String         @db.Uuid
+  organization    Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  branchId        String         @db.Uuid
+  branch          Branch         @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  
+  employeeId      String         @db.Uuid
+  employee        Employee       @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  
+  leaveType       LeaveType
+  status          LeaveStatus    @default(PENDING)
+  
+  startDate       DateTime       @db.Date
+  endDate         DateTime       @db.Date
+  reason          String
+  attachmentUrl   String?
+  
+  approvedBy      String?        @db.Uuid // User ID who approved/rejected
+  comments        String?
+  
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@index([organizationId])
+  @@index([branchId])
+  @@index([employeeId])
+  @@index([status])
+  @@map("leaves")
+}
+
+model LeaveBalance {
+  id              String         @id @default(uuid()) @db.Uuid
+  organizationId  String         @db.Uuid
+  organization    Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  
+  employeeId      String         @db.Uuid
+  employee        Employee       @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  
+  leaveType       LeaveType
+  balance         Float          @default(0.0)
+  
+  updatedAt       DateTime       @updatedAt
+
+  @@unique([employeeId, leaveType])
+  @@index([organizationId])
+  @@map("leave_balances")
+}
+
+model Holiday {
+  id              String         @id @default(uuid()) @db.Uuid
+  organizationId  String         @db.Uuid
+  organization    Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  branchId        String?        @db.Uuid // Nullable if organization-wide
+  branch          Branch?        @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  
+  name            String
+  date            DateTime       @db.Date
+  type            HolidayType    @default(NATIONAL)
+  
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@unique([organizationId, date, branchId])
+  @@index([organizationId])
+  @@map("holidays")
+}
+
+model Payroll {
+  id              String         @id @default(uuid()) @db.Uuid
+  organizationId  String         @db.Uuid
+  organization    Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  branchId        String         @db.Uuid
+  branch          Branch         @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  
+  employeeId      String         @db.Uuid
+  employee        Employee       @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  
+  month           String         // Format: "YYYY-MM" (e.g. "2026-06")
+  baseSalary      Float
+  overtimePay     Float          @default(0.0)
+  bonus           Float          @default(0.0)
+  incentives      Float          @default(0.0)
+  leaveDeductions Float          @default(0.0)
+  latePenalties   Float          @default(0.0)
+  otherDeductions Float          @default(0.0)
+  netSalary       Float
+  
+  status          PayrollStatus  @default(PENDING)
+  payslipUrl      String?
+  
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@unique([employeeId, month])
+  @@index([organizationId])
+  @@index([branchId])
+  @@index([employeeId])
+  @@index([month])
+  @@map("payrolls")
+}
+
+model Announcement {
+  id              String         @id @default(uuid()) @db.Uuid
+  organizationId  String         @db.Uuid
+  organization    Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  
+  branchId        String?        @db.Uuid // Nullable for whole organization
+  branch          Branch?        @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  
+  department      String?        // Target department
+  title           String
+  content         String
+  audienceType    AudienceType   @default(ALL)
+  scheduledFor    DateTime       @default(now())
+  
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@index([organizationId])
+  @@map("announcements")
+}
+
+model Notification {
+  id              String           @id @default(uuid()) @db.Uuid
+  userId          String           @db.Uuid
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  title           String
+  body            String
+  type            NotificationType @default(SYSTEM)
+  isRead          Boolean          @default(false)
+  
+  createdAt       DateTime         @default(now())
+
+  @@index([userId])
+  @@map("notifications")
+}
+
+model AuditLog {
+  id              String         @id @default(uuid()) @db.Uuid
+  organizationId  String?        @db.Uuid
+  organization    Organization?  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  
+  userId          String         @db.Uuid
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  action          String         // e.g. "EMPLOYEE_CREATED", "LEAVE_APPROVED"
+  entity          String         // e.g. "Employee", "Leave"
+  entityId        String?
+  
+  oldValue        Json?
+  newValue        Json?
+  
+  ipAddress       String?
+  userAgent       String?
+  timestamp       DateTime       @default(now())
+
+  @@index([organizationId])
+  @@map("audit_logs")
+}
