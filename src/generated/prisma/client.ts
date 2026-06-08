@@ -119,3 +119,8 @@ export type Notification = Prisma.NotificationModel
  * 
  */
 export type AuditLog = Prisma.AuditLogModel
+/**
+ * Model Task
+ * 
+ */
+export type Task = Prisma.TaskModel

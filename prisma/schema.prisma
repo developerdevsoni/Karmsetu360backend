@@ -76,6 +76,13 @@ enum NotificationType {
   SYSTEM
 }
 
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
 model Organization {
   id                  String               @id @default(uuid()) @db.Uuid
   name                String
@@ -98,6 +105,7 @@ model Organization {
   announcements       Announcement[]
   auditLogs           AuditLog[]
   settings            OrgSettings?
+  tasks               Task[]
 
   @@map("organizations")
 }
@@ -201,6 +209,7 @@ model User {
   employeeProfile Employee?
   auditLogs       AuditLog[]
   notifications   Notification[]
+  createdTasks    Task[]         @relation(name: "CreatedTasks")
 
   @@index([organizationId])
   @@map("users")
@@ -234,6 +243,7 @@ model Employee {
   leaves          Leave[]
   leaveBalances   LeaveBalance[]
   payrolls        Payroll[]
+  tasks           Task[]
 
   @@unique([organizationId, employeeId])
   @@index([organizationId])
@@ -457,4 +467,29 @@ model AuditLog {
 
   @@index([organizationId])
   @@map("audit_logs")
+}
+
+model Task {
+  id              String         @id @default(uuid()) @db.Uuid
+  organizationId  String         @db.Uuid
+  organization    Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  
+  employeeId      String         @db.Uuid
+  employee        Employee       @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  
+  creatorId       String         @db.Uuid
+  creator         User           @relation(name: "CreatedTasks", fields: [creatorId], references: [id], onDelete: Cascade)
+  
+  title           String
+  description     String?
+  status          TaskStatus     @default(PENDING)
+  dueDate         DateTime?
+  
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@index([organizationId])
+  @@index([employeeId])
+  @@index([creatorId])
+  @@map("tasks")
 }

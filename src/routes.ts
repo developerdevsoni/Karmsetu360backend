@@ -12,6 +12,7 @@ import announcementRoutes from './modules/announcement/routes/announcement.route
 import notificationRoutes from './modules/notification/routes/notification.routes';
 import reportRoutes from './modules/report/routes/report.routes';
 import auditRoutes from './modules/audit/routes/audit.routes';
+import taskRoutes from './modules/task/routes/task.routes';
 
 const router = Router();
 
@@ -28,5 +29,6 @@ router.use('/announcements', announcementRoutes);
 router.use('/notifications', notificationRoutes);
 router.use('/reports', reportRoutes);
 router.use('/audit', auditRoutes);
+router.use('/tasks', taskRoutes);
 
 export default router;
