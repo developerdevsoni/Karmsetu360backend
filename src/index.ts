@@ -40,6 +40,7 @@ setupSwagger(app);
 
 // Mount main routes
 app.use('/api', router);
+app.use('/api/v1', router);
 
 // Health check endpoint
 app.get('/health', (req, res) => {

@@ -13,6 +13,10 @@ import notificationRoutes from './modules/notification/routes/notification.route
 import reportRoutes from './modules/report/routes/report.routes';
 import auditRoutes from './modules/audit/routes/audit.routes';
 import taskRoutes from './modules/task/routes/task.routes';
+import onboardingRoutes from './modules/onboarding/routes/onboarding.routes';
+import { OnboardingController } from './modules/onboarding/controller/onboarding.controller';
+import { validate } from './middlewares/validation.middleware';
+import { registerAdminSchema } from './modules/onboarding/validator/onboarding.validator';
 
 const router = Router();
 
@@ -30,5 +34,9 @@ router.use('/notifications', notificationRoutes);
 router.use('/reports', reportRoutes);
 router.use('/audit', auditRoutes);
 router.use('/tasks', taskRoutes);
+router.use('/onboarding', onboardingRoutes);
+
+// Alias /admin/register to onboarding controller
+router.post('/admin/register', validate(registerAdminSchema), OnboardingController.registerAdmin);
 
 export default router;
