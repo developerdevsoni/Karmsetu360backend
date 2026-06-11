@@ -20,7 +20,8 @@ export class AttendanceRepository {
     date: Date,
     checkIn: Date,
     status: AttendanceStatus,
-    notes?: string
+    notes?: string,
+    activities?: any
   ) {
     return prisma.attendance.create({
       data: {
@@ -30,8 +31,27 @@ export class AttendanceRepository {
         date,
         checkIn,
         status,
-        notes
+        notes,
+        activities
       }
+    });
+  }
+
+  public static async updateAttendanceRecord(
+    id: string,
+    data: {
+      checkOut?: Date | null;
+      breakIn?: Date | null;
+      breakOut?: Date | null;
+      breakDuration?: number;
+      workingHours?: number;
+      status?: AttendanceStatus;
+      activities?: any;
+    }
+  ) {
+    return prisma.attendance.update({
+      where: { id },
+      data
     });
   }
 

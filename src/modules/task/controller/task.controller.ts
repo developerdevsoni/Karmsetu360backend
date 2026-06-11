@@ -8,9 +8,10 @@ export class TaskController {
     try {
       const orgId = req.tenant?.organizationId;
       const creatorId = req.user?.userId;
+      const role = req.user?.role;
       const { employeeId, title, description, dueDate } = req.body;
 
-      const result = await TaskService.createTask(orgId!, creatorId!, {
+      const result = await TaskService.createTask(orgId!, creatorId!, role!, {
         employeeId,
         title,
         description,

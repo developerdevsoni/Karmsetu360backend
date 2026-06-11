@@ -11,9 +11,21 @@ export const validate = (schema: ZodType<any, any, any>) => {
       });
       
       // Replace with parsed and typed data
-      req.body = parsed.body || req.body;
-      req.query = parsed.query || req.query;
-      req.params = parsed.params || req.params;
+      if (parsed.body) {
+        req.body = parsed.body;
+      }
+      if (parsed.query) {
+        for (const key in req.query) {
+          delete req.query[key];
+        }
+        Object.assign(req.query, parsed.query);
+      }
+      if (parsed.params) {
+        for (const key in req.params) {
+          delete req.params[key];
+        }
+        Object.assign(req.params, parsed.params);
+      }
       
       next();
     } catch (error) {

@@ -87,12 +87,20 @@ router.use(tenantContext);
  *           $ref: '#/components/schemas/TaskStatus'
  */
 
+const clientRouter = Router();
+clientRouter.use(authenticate);
+clientRouter.use(tenantContext);
+
+const adminRouter = Router();
+adminRouter.use(authenticate);
+adminRouter.use(tenantContext);
+
 /**
  * @swagger
  * /tasks:
  *   post:
  *     summary: Create a new Task for an employee
- *     description: Assign a task to a specific employee in the organization. Requires SUPER_ADMIN, ORG_ADMIN, HR, or BRANCH_MANAGER roles.
+ *     description: Assign a task to a specific employee in the organization. Requires SUPER_ADMIN, ORG_ADMIN, or HR, or BRANCH_MANAGER roles.
  *     tags:
  *       - Tasks
  *     security:
@@ -120,7 +128,7 @@ router.use(tenantContext);
  *                 data:
  *                   $ref: '#/components/schemas/Task'
  */
-router.post(
+adminRouter.post(
   '/',
   authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR', 'BRANCH_MANAGER']),
   validate(createTaskSchema),
@@ -174,7 +182,9 @@ router.post(
  *                   items:
  *                     $ref: '#/components/schemas/Task'
  */
-router.get('/', TaskController.list);
+clientRouter.get('/', TaskController.list);
+clientRouter.post('/', validate(createTaskSchema), TaskController.create);
+adminRouter.get('/', TaskController.list);
 
 /**
  * @swagger
@@ -217,14 +227,15 @@ router.get('/', TaskController.list);
  *                 data:
  *                   $ref: '#/components/schemas/Task'
  */
-router.put('/:id/status', validate(updateTaskStatusSchema), TaskController.updateStatus);
+clientRouter.put('/:id/status', validate(updateTaskStatusSchema), TaskController.updateStatus);
+adminRouter.put('/:id/status', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR', 'BRANCH_MANAGER']), validate(updateTaskStatusSchema), TaskController.updateStatus);
 
 /**
  * @swagger
  * /tasks/{id}:
  *   delete:
  *     summary: Delete a Task
- *     description: Remove a task from the database. Requires SUPER_ADMIN, ORG_ADMIN, HR, or BRANCH_MANAGER roles.
+ *     description: Remove a task from the database. Requires SUPER_ADMIN, ORG_ADMIN, or HR, or BRANCH_MANAGER roles.
  *     tags:
  *       - Tasks
  *     security:
@@ -252,6 +263,6 @@ router.put('/:id/status', validate(updateTaskStatusSchema), TaskController.updat
  *                   type: string
  *                   example: Task deleted successfully
  */
-router.delete('/:id', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR', 'BRANCH_MANAGER']), TaskController.delete);
+adminRouter.delete('/:id', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR', 'BRANCH_MANAGER']), TaskController.delete);
 
-export default router;
+export { clientRouter as clientTaskRouter, adminRouter as adminTaskRouter };

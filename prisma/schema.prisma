@@ -295,6 +295,7 @@ model Attendance {
   
   notes           String?
   corrections     Json?             // Array of objects tracking correction requests
+  activities      Json?
   
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt

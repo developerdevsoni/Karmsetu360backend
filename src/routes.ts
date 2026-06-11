@@ -2,41 +2,53 @@ import { Router } from 'express';
 import authRoutes from './modules/auth/routes/auth.routes';
 import organizationRoutes from './modules/organization/routes/organization.routes';
 import branchRoutes from './modules/branch/routes/branch.routes';
-import employeeRoutes from './modules/employee/routes/employee.routes';
-import attendanceRoutes from './modules/attendance/routes/attendance.routes';
+import { clientEmployeeRouter, adminEmployeeRouter } from './modules/employee/routes/employee.routes';
+import { clientAttendanceRouter, adminAttendanceRouter } from './modules/attendance/routes/attendance.routes';
 import shiftRoutes from './modules/shift/routes/shift.routes';
-import leaveRoutes from './modules/leave/routes/leave.routes';
-import holidayRoutes from './modules/holiday/routes/holiday.routes';
-import payrollRoutes from './modules/payroll/routes/payroll.routes';
-import announcementRoutes from './modules/announcement/routes/announcement.routes';
+import { clientLeaveRouter, adminLeaveRouter } from './modules/leave/routes/leave.routes';
+import { clientHolidayRouter, adminHolidayRouter } from './modules/holiday/routes/holiday.routes';
+import { clientPayrollRouter, adminPayrollRouter } from './modules/payroll/routes/payroll.routes';
+import { clientAnnouncementRouter, adminAnnouncementRouter } from './modules/announcement/routes/announcement.routes';
 import notificationRoutes from './modules/notification/routes/notification.routes';
 import reportRoutes from './modules/report/routes/report.routes';
 import auditRoutes from './modules/audit/routes/audit.routes';
-import taskRoutes from './modules/task/routes/task.routes';
+import { clientTaskRouter, adminTaskRouter } from './modules/task/routes/task.routes';
 import onboardingRoutes from './modules/onboarding/routes/onboarding.routes';
 import { OnboardingController } from './modules/onboarding/controller/onboarding.controller';
 import { validate } from './middlewares/validation.middleware';
 import { registerAdminSchema } from './modules/onboarding/validator/onboarding.validator';
 
-const router = Router();
+// 1. Client App Router (Standard Employee App)
+export const clientRouter = Router();
 
-router.use('/auth', authRoutes);
-router.use('/organizations', organizationRoutes);
-router.use('/branches', branchRoutes);
-router.use('/employees', employeeRoutes);
-router.use('/attendance', attendanceRoutes);
-router.use('/shifts', shiftRoutes);
-router.use('/leaves', leaveRoutes);
-router.use('/holidays', holidayRoutes);
-router.use('/payroll', payrollRoutes);
-router.use('/announcements', announcementRoutes);
-router.use('/notifications', notificationRoutes);
-router.use('/reports', reportRoutes);
-router.use('/audit', auditRoutes);
-router.use('/tasks', taskRoutes);
-router.use('/onboarding', onboardingRoutes);
+clientRouter.use('/auth', authRoutes);
+clientRouter.use('/employees', clientEmployeeRouter);
+clientRouter.use('/attendance', clientAttendanceRouter);
+clientRouter.use('/leaves', clientLeaveRouter);
+clientRouter.use('/tasks', clientTaskRouter);
+clientRouter.use('/payroll', clientPayrollRouter);
+clientRouter.use('/announcements', clientAnnouncementRouter);
+clientRouter.use('/notifications', notificationRoutes);
+clientRouter.use('/holidays', clientHolidayRouter);
 
-// Alias /admin/register to onboarding controller
-router.post('/admin/register', validate(registerAdminSchema), OnboardingController.registerAdmin);
+// 2. Admin/Server App Router (Management Console)
+export const adminRouter = Router();
 
-export default router;
+adminRouter.use('/auth', authRoutes); // Admins also use authentication endpoints
+adminRouter.use('/onboarding', onboardingRoutes);
+adminRouter.use('/organizations', organizationRoutes);
+adminRouter.use('/branches', branchRoutes);
+adminRouter.use('/employees', adminEmployeeRouter);
+adminRouter.use('/attendance', adminAttendanceRouter);
+adminRouter.use('/shifts', shiftRoutes);
+adminRouter.use('/leaves', adminLeaveRouter);
+adminRouter.use('/holidays', adminHolidayRouter);
+adminRouter.use('/payroll', adminPayrollRouter);
+adminRouter.use('/announcements', adminAnnouncementRouter);
+adminRouter.use('/tasks', adminTaskRouter);
+adminRouter.use('/reports', reportRoutes);
+adminRouter.use('/audit', auditRoutes);
+
+// Support POST /api/v1/admin/register directly
+adminRouter.post('/register', validate(registerAdminSchema), OnboardingController.registerAdmin);
+

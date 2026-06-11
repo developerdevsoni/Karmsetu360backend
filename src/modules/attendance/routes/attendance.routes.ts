@@ -133,6 +133,14 @@ router.use(tenantContext);
  *           example: "Valid reason, approved"
  */
 
+const clientRouter = Router();
+clientRouter.use(authenticate);
+clientRouter.use(tenantContext);
+
+const adminRouter = Router();
+adminRouter.use(authenticate);
+adminRouter.use(tenantContext);
+
 // Employee actions
 
 /**
@@ -155,7 +163,7 @@ router.use(tenantContext);
  *       200:
  *         description: Checked in successfully.
  */
-router.post('/check-in', validate(checkInSchema), AttendanceController.checkIn);
+clientRouter.post('/check-in', validate(checkInSchema), AttendanceController.checkIn);
 
 /**
  * @swagger
@@ -171,7 +179,7 @@ router.post('/check-in', validate(checkInSchema), AttendanceController.checkIn);
  *       200:
  *         description: Checked out successfully.
  */
-router.post('/check-out', AttendanceController.checkOut);
+clientRouter.post('/check-out', AttendanceController.checkOut);
 
 /**
  * @swagger
@@ -187,7 +195,7 @@ router.post('/check-out', AttendanceController.checkOut);
  *       200:
  *         description: Break started successfully.
  */
-router.post('/break-in', AttendanceController.breakIn);
+clientRouter.post('/break-in', AttendanceController.breakIn);
 
 /**
  * @swagger
@@ -203,7 +211,7 @@ router.post('/break-in', AttendanceController.breakIn);
  *       200:
  *         description: Break ended successfully.
  */
-router.post('/break-out', AttendanceController.breakOut);
+clientRouter.post('/break-out', AttendanceController.breakOut);
 
 /**
  * @swagger
@@ -232,7 +240,9 @@ router.post('/break-out', AttendanceController.breakOut);
  *       200:
  *         description: Personal attendance history list.
  */
-router.get('/history', AttendanceController.getHistory);
+clientRouter.get('/history', AttendanceController.getHistory);
+clientRouter.get('/today', AttendanceController.getTodayStatus);
+clientRouter.get('/export', AttendanceController.exportSelfHistory);
 
 /**
  * @swagger
@@ -254,7 +264,7 @@ router.get('/history', AttendanceController.getHistory);
  *       200:
  *         description: Correction request submitted.
  */
-router.post('/correction', validate(correctionSchema), AttendanceController.requestCorrection);
+clientRouter.post('/correction', validate(correctionSchema), AttendanceController.requestCorrection);
 
 // Administrator actions
 
@@ -288,7 +298,8 @@ router.post('/correction', validate(correctionSchema), AttendanceController.requ
  *       200:
  *         description: List of logs.
  */
-router.get('/logs', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR', 'BRANCH_MANAGER']), AttendanceController.getLogs);
+adminRouter.get('/logs', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR', 'BRANCH_MANAGER']), AttendanceController.getLogs);
+adminRouter.get('/export', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR', 'BRANCH_MANAGER']), AttendanceController.exportLogs);
 
 /**
  * @swagger
@@ -304,7 +315,7 @@ router.get('/logs', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR', 'BRANCH_MAN
  *       200:
  *         description: Analytics object.
  */
-router.get('/analytics', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR', 'BRANCH_MANAGER']), AttendanceController.getAnalytics);
+adminRouter.get('/analytics', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR', 'BRANCH_MANAGER']), AttendanceController.getAnalytics);
 
 /**
  * @swagger
@@ -326,6 +337,6 @@ router.get('/analytics', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR', 'BRANC
  *       200:
  *         description: Correction request processed.
  */
-router.put('/correction/process', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR', 'BRANCH_MANAGER']), validate(processCorrectionSchema), AttendanceController.processCorrection);
+adminRouter.put('/correction/process', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR', 'BRANCH_MANAGER']), validate(processCorrectionSchema), AttendanceController.processCorrection);
 
-export default router;
+export { clientRouter as clientAttendanceRouter, adminRouter as adminAttendanceRouter };

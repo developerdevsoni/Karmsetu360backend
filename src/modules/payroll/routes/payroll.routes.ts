@@ -115,6 +115,14 @@ router.use(tenantContext);
  *           example: 0.0
  */
 
+const clientRouter = Router();
+clientRouter.use(authenticate);
+clientRouter.use(tenantContext);
+
+const adminRouter = Router();
+adminRouter.use(authenticate);
+adminRouter.use(tenantContext);
+
 // Employee actions
 
 /**
@@ -131,7 +139,7 @@ router.use(tenantContext);
  *       200:
  *         description: List of payslips.
  */
-router.get('/my/payslips', PayrollController.listSelfPayslips);
+clientRouter.get('/my/payslips', PayrollController.listSelfPayslips);
 
 /**
  * @swagger
@@ -155,7 +163,7 @@ router.get('/my/payslips', PayrollController.listSelfPayslips);
  *       200:
  *         description: File download.
  */
-router.get('/my/payslips/:id/download', PayrollController.downloadPayslip);
+clientRouter.get('/my/payslips/:id/download', PayrollController.downloadPayslip);
 
 // Administrator / HR actions
 
@@ -179,7 +187,7 @@ router.get('/my/payslips/:id/download', PayrollController.downloadPayslip);
  *       200:
  *         description: Payroll generated.
  */
-router.post('/generate', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR']), validate(generatePayrollSchema), PayrollController.generate);
+adminRouter.post('/generate', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR']), validate(generatePayrollSchema), PayrollController.generate);
 
 /**
  * @swagger
@@ -201,7 +209,7 @@ router.post('/generate', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR']), vali
  *       200:
  *         description: Payroll rows locked.
  */
-router.post('/lock', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN']), validate(lockPayrollSchema), PayrollController.lock);
+adminRouter.post('/lock', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN']), validate(lockPayrollSchema), PayrollController.lock);
 
 /**
  * @swagger
@@ -231,7 +239,7 @@ router.post('/lock', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN']), validate(lockP
  *       200:
  *         description: Payroll row details updated.
  */
-router.put('/:id', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR']), validate(updatePayrollRowSchema), PayrollController.updateRow);
+adminRouter.put('/:id', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR']), validate(updatePayrollRowSchema), PayrollController.updateRow);
 
 /**
  * @swagger
@@ -255,7 +263,7 @@ router.put('/:id', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR']), validate(u
  *       200:
  *         description: Details retrieved.
  */
-router.get('/:id', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR', 'BRANCH_MANAGER']), PayrollController.get);
+adminRouter.get('/:id', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR', 'BRANCH_MANAGER']), PayrollController.get);
 
 /**
  * @swagger
@@ -287,6 +295,6 @@ router.get('/:id', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR', 'BRANCH_MANA
  *       200:
  *         description: List of payroll logs.
  */
-router.get('/', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR', 'BRANCH_MANAGER']), PayrollController.list);
+adminRouter.get('/', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR', 'BRANCH_MANAGER']), PayrollController.list);
 
-export default router;
+export { clientRouter as clientPayrollRouter, adminRouter as adminPayrollRouter };

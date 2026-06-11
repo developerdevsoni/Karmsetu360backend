@@ -70,6 +70,14 @@ router.use(tenantContext);
  *           example: "branch_uuid_123"
  */
 
+const clientRouter = Router();
+clientRouter.use(authenticate);
+clientRouter.use(tenantContext);
+
+const adminRouter = Router();
+adminRouter.use(authenticate);
+adminRouter.use(tenantContext);
+
 // Holiday endpoints with role permissions validation
 
 /**
@@ -92,7 +100,7 @@ router.use(tenantContext);
  *       201:
  *         description: Holiday created successfully.
  */
-router.post('/', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR']), validate(createHolidaySchema), HolidayController.create);
+adminRouter.post('/', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR']), validate(createHolidaySchema), HolidayController.create);
 
 /**
  * @swagger
@@ -122,7 +130,7 @@ router.post('/', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR']), validate(cre
  *       200:
  *         description: Holiday updated.
  */
-router.put('/:id', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR']), validate(updateHolidaySchema), HolidayController.update);
+adminRouter.put('/:id', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR']), validate(updateHolidaySchema), HolidayController.update);
 
 /**
  * @swagger
@@ -146,7 +154,7 @@ router.put('/:id', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR']), validate(u
  *       200:
  *         description: Holiday deleted.
  */
-router.delete('/:id', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR']), HolidayController.delete);
+adminRouter.delete('/:id', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR']), HolidayController.delete);
 
 /**
  * @swagger
@@ -162,6 +170,6 @@ router.delete('/:id', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR']), Holiday
  *       200:
  *         description: List of holidays.
  */
-router.get('/', HolidayController.list);
+clientRouter.get('/', HolidayController.list);
 
-export default router;
+export { clientRouter as clientHolidayRouter, adminRouter as adminHolidayRouter };

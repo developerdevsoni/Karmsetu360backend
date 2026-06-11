@@ -131,6 +131,14 @@ router.use(tenantContext);
  *           example: "shift_uuid_123"
  */
 
+const clientRouter = Router();
+clientRouter.use(authenticate);
+clientRouter.use(tenantContext);
+
+const adminRouter = Router();
+adminRouter.use(authenticate);
+adminRouter.use(tenantContext);
+
 // Self profile retrieval
 
 /**
@@ -147,7 +155,7 @@ router.use(tenantContext);
  *       200:
  *         description: Profile details retrieved.
  */
-router.get('/profile', EmployeeController.getProfile);
+clientRouter.get('/profile', EmployeeController.getProfile);
 
 // Bulk Excel operations
 
@@ -175,7 +183,7 @@ router.get('/profile', EmployeeController.getProfile);
  *       200:
  *         description: Employees imported successfully.
  */
-router.post('/import', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR']), importUpload.single('file'), EmployeeController.importEmployees);
+adminRouter.post('/import', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR']), importUpload.single('file'), EmployeeController.importEmployees);
 
 /**
  * @swagger
@@ -191,7 +199,7 @@ router.post('/import', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR']), import
  *       200:
  *         description: File download successful.
  */
-router.get('/export', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR']), EmployeeController.exportEmployees);
+adminRouter.get('/export', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR']), EmployeeController.exportEmployees);
 
 // CRUD operations
 
@@ -215,7 +223,7 @@ router.get('/export', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR']), Employe
  *       201:
  *         description: Employee profile created.
  */
-router.post('/', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR']), validate(createEmployeeSchema), EmployeeController.create);
+adminRouter.post('/', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR']), validate(createEmployeeSchema), EmployeeController.create);
 
 /**
  * @swagger
@@ -269,7 +277,7 @@ router.post('/', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR']), validate(cre
  *       200:
  *         description: Employee updated.
  */
-router.put('/:id', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR', 'BRANCH_MANAGER']), validate(updateEmployeeSchema), EmployeeController.update);
+adminRouter.put('/:id', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR', 'BRANCH_MANAGER']), validate(updateEmployeeSchema), EmployeeController.update);
 
 /**
  * @swagger
@@ -293,7 +301,7 @@ router.put('/:id', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR', 'BRANCH_MANA
  *       200:
  *         description: Employee deleted.
  */
-router.delete('/:id', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN']), EmployeeController.delete);
+adminRouter.delete('/:id', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN']), EmployeeController.delete);
 
 /**
  * @swagger
@@ -317,7 +325,7 @@ router.delete('/:id', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN']), EmployeeContr
  *       200:
  *         description: Employee status updated.
  */
-router.put('/:id/deactivate', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR']), EmployeeController.deactivate);
+adminRouter.put('/:id/deactivate', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR']), EmployeeController.deactivate);
 
 /**
  * @swagger
@@ -341,7 +349,7 @@ router.put('/:id/deactivate', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR']),
  *       200:
  *         description: Employee details retrieved.
  */
-router.get('/:id', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR', 'BRANCH_MANAGER']), EmployeeController.get);
+adminRouter.get('/:id', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR', 'BRANCH_MANAGER']), EmployeeController.get);
 
 /**
  * @swagger
@@ -357,6 +365,6 @@ router.get('/:id', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR', 'BRANCH_MANA
  *       200:
  *         description: List of employee profiles.
  */
-router.get('/', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR', 'BRANCH_MANAGER']), EmployeeController.list);
+adminRouter.get('/', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR', 'BRANCH_MANAGER']), EmployeeController.list);
 
-export default router;
+export { clientRouter as clientEmployeeRouter, adminRouter as adminEmployeeRouter };

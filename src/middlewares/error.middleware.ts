@@ -8,8 +8,6 @@ export const errorHandler = (
   res: Response,
   next: NextFunction
 ) => {
-  logger.error(`Error: ${err.message} | Path: ${req.path} | Method: ${req.method} | Stack: ${err.stack}`);
-
   let statusCode = err.statusCode || 500;
   let message = err.message || 'Internal Server Error';
   let details = err.details || null;
@@ -33,6 +31,12 @@ export const errorHandler = (
     } else {
       message = `Database transaction error: ${err.code}`;
     }
+  }
+
+  if (statusCode >= 500) {
+    logger.error(`Server Error: ${err.message} | Path: ${req.path} | Method: ${req.method} | Stack: ${err.stack}`);
+  } else {
+    logger.warn(`Client Error: ${err.message} | Path: ${req.path} | Method: ${req.method}`);
   }
 
   res.status(statusCode).json({

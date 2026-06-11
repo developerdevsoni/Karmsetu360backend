@@ -87,6 +87,7 @@ export type AttendanceCountAggregateOutputType = {
   workingHours: number
   notes: number
   corrections: number
+  activities: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -154,6 +155,7 @@ export type AttendanceCountAggregateInputType = {
   workingHours?: true
   notes?: true
   corrections?: true
+  activities?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -260,6 +262,7 @@ export type AttendanceGroupByOutputType = {
   workingHours: number
   notes: string | null
   corrections: runtime.JsonValue | null
+  activities: runtime.JsonValue | null
   createdAt: Date
   updatedAt: Date
   _count: AttendanceCountAggregateOutputType | null
@@ -302,6 +305,7 @@ export type AttendanceWhereInput = {
   workingHours?: Prisma.FloatFilter<"Attendance"> | number
   notes?: Prisma.StringNullableFilter<"Attendance"> | string | null
   corrections?: Prisma.JsonNullableFilter<"Attendance">
+  activities?: Prisma.JsonNullableFilter<"Attendance">
   createdAt?: Prisma.DateTimeFilter<"Attendance"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Attendance"> | Date | string
   organization?: Prisma.XOR<Prisma.OrganizationScalarRelationFilter, Prisma.OrganizationWhereInput>
@@ -324,6 +328,7 @@ export type AttendanceOrderByWithRelationInput = {
   workingHours?: Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   corrections?: Prisma.SortOrderInput | Prisma.SortOrder
+  activities?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   organization?: Prisma.OrganizationOrderByWithRelationInput
@@ -350,6 +355,7 @@ export type AttendanceWhereUniqueInput = Prisma.AtLeast<{
   workingHours?: Prisma.FloatFilter<"Attendance"> | number
   notes?: Prisma.StringNullableFilter<"Attendance"> | string | null
   corrections?: Prisma.JsonNullableFilter<"Attendance">
+  activities?: Prisma.JsonNullableFilter<"Attendance">
   createdAt?: Prisma.DateTimeFilter<"Attendance"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Attendance"> | Date | string
   organization?: Prisma.XOR<Prisma.OrganizationScalarRelationFilter, Prisma.OrganizationWhereInput>
@@ -372,6 +378,7 @@ export type AttendanceOrderByWithAggregationInput = {
   workingHours?: Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   corrections?: Prisma.SortOrderInput | Prisma.SortOrder
+  activities?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.AttendanceCountOrderByAggregateInput
@@ -399,6 +406,7 @@ export type AttendanceScalarWhereWithAggregatesInput = {
   workingHours?: Prisma.FloatWithAggregatesFilter<"Attendance"> | number
   notes?: Prisma.StringNullableWithAggregatesFilter<"Attendance"> | string | null
   corrections?: Prisma.JsonNullableWithAggregatesFilter<"Attendance">
+  activities?: Prisma.JsonNullableWithAggregatesFilter<"Attendance">
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Attendance"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Attendance"> | Date | string
 }
@@ -415,6 +423,7 @@ export type AttendanceCreateInput = {
   workingHours?: number
   notes?: string | null
   corrections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  activities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
   organization: Prisma.OrganizationCreateNestedOneWithoutAttendanceRecordsInput
@@ -437,6 +446,7 @@ export type AttendanceUncheckedCreateInput = {
   workingHours?: number
   notes?: string | null
   corrections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  activities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -453,6 +463,7 @@ export type AttendanceUpdateInput = {
   workingHours?: Prisma.FloatFieldUpdateOperationsInput | number
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   corrections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  activities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   organization?: Prisma.OrganizationUpdateOneRequiredWithoutAttendanceRecordsNestedInput
@@ -475,6 +486,7 @@ export type AttendanceUncheckedUpdateInput = {
   workingHours?: Prisma.FloatFieldUpdateOperationsInput | number
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   corrections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  activities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -494,6 +506,7 @@ export type AttendanceCreateManyInput = {
   workingHours?: number
   notes?: string | null
   corrections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  activities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -510,6 +523,7 @@ export type AttendanceUpdateManyMutationInput = {
   workingHours?: Prisma.FloatFieldUpdateOperationsInput | number
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   corrections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  activities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -529,6 +543,7 @@ export type AttendanceUncheckedUpdateManyInput = {
   workingHours?: Prisma.FloatFieldUpdateOperationsInput | number
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   corrections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  activities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -563,6 +578,7 @@ export type AttendanceCountOrderByAggregateInput = {
   workingHours?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   corrections?: Prisma.SortOrder
+  activities?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -759,6 +775,7 @@ export type AttendanceCreateWithoutOrganizationInput = {
   workingHours?: number
   notes?: string | null
   corrections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  activities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
   branch: Prisma.BranchCreateNestedOneWithoutAttendanceInput
@@ -779,6 +796,7 @@ export type AttendanceUncheckedCreateWithoutOrganizationInput = {
   workingHours?: number
   notes?: string | null
   corrections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  activities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -827,6 +845,7 @@ export type AttendanceScalarWhereInput = {
   workingHours?: Prisma.FloatFilter<"Attendance"> | number
   notes?: Prisma.StringNullableFilter<"Attendance"> | string | null
   corrections?: Prisma.JsonNullableFilter<"Attendance">
+  activities?: Prisma.JsonNullableFilter<"Attendance">
   createdAt?: Prisma.DateTimeFilter<"Attendance"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Attendance"> | Date | string
 }
@@ -843,6 +862,7 @@ export type AttendanceCreateWithoutBranchInput = {
   workingHours?: number
   notes?: string | null
   corrections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  activities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
   organization: Prisma.OrganizationCreateNestedOneWithoutAttendanceRecordsInput
@@ -863,6 +883,7 @@ export type AttendanceUncheckedCreateWithoutBranchInput = {
   workingHours?: number
   notes?: string | null
   corrections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  activities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -905,6 +926,7 @@ export type AttendanceCreateWithoutEmployeeInput = {
   workingHours?: number
   notes?: string | null
   corrections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  activities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
   organization: Prisma.OrganizationCreateNestedOneWithoutAttendanceRecordsInput
@@ -925,6 +947,7 @@ export type AttendanceUncheckedCreateWithoutEmployeeInput = {
   workingHours?: number
   notes?: string | null
   corrections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  activities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -969,6 +992,7 @@ export type AttendanceCreateManyOrganizationInput = {
   workingHours?: number
   notes?: string | null
   corrections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  activities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -985,6 +1009,7 @@ export type AttendanceUpdateWithoutOrganizationInput = {
   workingHours?: Prisma.FloatFieldUpdateOperationsInput | number
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   corrections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  activities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   branch?: Prisma.BranchUpdateOneRequiredWithoutAttendanceNestedInput
@@ -1005,6 +1030,7 @@ export type AttendanceUncheckedUpdateWithoutOrganizationInput = {
   workingHours?: Prisma.FloatFieldUpdateOperationsInput | number
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   corrections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  activities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1023,6 +1049,7 @@ export type AttendanceUncheckedUpdateManyWithoutOrganizationInput = {
   workingHours?: Prisma.FloatFieldUpdateOperationsInput | number
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   corrections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  activities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1041,6 +1068,7 @@ export type AttendanceCreateManyBranchInput = {
   workingHours?: number
   notes?: string | null
   corrections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  activities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1057,6 +1085,7 @@ export type AttendanceUpdateWithoutBranchInput = {
   workingHours?: Prisma.FloatFieldUpdateOperationsInput | number
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   corrections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  activities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   organization?: Prisma.OrganizationUpdateOneRequiredWithoutAttendanceRecordsNestedInput
@@ -1077,6 +1106,7 @@ export type AttendanceUncheckedUpdateWithoutBranchInput = {
   workingHours?: Prisma.FloatFieldUpdateOperationsInput | number
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   corrections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  activities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1095,6 +1125,7 @@ export type AttendanceUncheckedUpdateManyWithoutBranchInput = {
   workingHours?: Prisma.FloatFieldUpdateOperationsInput | number
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   corrections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  activities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1113,6 +1144,7 @@ export type AttendanceCreateManyEmployeeInput = {
   workingHours?: number
   notes?: string | null
   corrections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  activities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1129,6 +1161,7 @@ export type AttendanceUpdateWithoutEmployeeInput = {
   workingHours?: Prisma.FloatFieldUpdateOperationsInput | number
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   corrections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  activities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   organization?: Prisma.OrganizationUpdateOneRequiredWithoutAttendanceRecordsNestedInput
@@ -1149,6 +1182,7 @@ export type AttendanceUncheckedUpdateWithoutEmployeeInput = {
   workingHours?: Prisma.FloatFieldUpdateOperationsInput | number
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   corrections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  activities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1167,6 +1201,7 @@ export type AttendanceUncheckedUpdateManyWithoutEmployeeInput = {
   workingHours?: Prisma.FloatFieldUpdateOperationsInput | number
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   corrections?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  activities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1188,6 +1223,7 @@ export type AttendanceSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   workingHours?: boolean
   notes?: boolean
   corrections?: boolean
+  activities?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
@@ -1210,6 +1246,7 @@ export type AttendanceSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   workingHours?: boolean
   notes?: boolean
   corrections?: boolean
+  activities?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
@@ -1232,6 +1269,7 @@ export type AttendanceSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   workingHours?: boolean
   notes?: boolean
   corrections?: boolean
+  activities?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
@@ -1254,11 +1292,12 @@ export type AttendanceSelectScalar = {
   workingHours?: boolean
   notes?: boolean
   corrections?: boolean
+  activities?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type AttendanceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "organizationId" | "branchId" | "employeeId" | "date" | "status" | "checkIn" | "checkOut" | "breakIn" | "breakOut" | "breakDuration" | "workingHours" | "notes" | "corrections" | "createdAt" | "updatedAt", ExtArgs["result"]["attendance"]>
+export type AttendanceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "organizationId" | "branchId" | "employeeId" | "date" | "status" | "checkIn" | "checkOut" | "breakIn" | "breakOut" | "breakDuration" | "workingHours" | "notes" | "corrections" | "activities" | "createdAt" | "updatedAt", ExtArgs["result"]["attendance"]>
 export type AttendanceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
   branch?: boolean | Prisma.BranchDefaultArgs<ExtArgs>
@@ -1297,6 +1336,7 @@ export type $AttendancePayload<ExtArgs extends runtime.Types.Extensions.Internal
     workingHours: number
     notes: string | null
     corrections: runtime.JsonValue | null
+    activities: runtime.JsonValue | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["attendance"]>
@@ -1739,6 +1779,7 @@ export interface AttendanceFieldRefs {
   readonly workingHours: Prisma.FieldRef<"Attendance", 'Float'>
   readonly notes: Prisma.FieldRef<"Attendance", 'String'>
   readonly corrections: Prisma.FieldRef<"Attendance", 'Json'>
+  readonly activities: Prisma.FieldRef<"Attendance", 'Json'>
   readonly createdAt: Prisma.FieldRef<"Attendance", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Attendance", 'DateTime'>
 }

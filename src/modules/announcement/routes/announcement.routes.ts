@@ -82,6 +82,14 @@ router.use(tenantContext);
  *           example: "2026-06-09T10:00:00.000Z"
  */
 
+const clientRouter = Router();
+clientRouter.use(authenticate);
+clientRouter.use(tenantContext);
+
+const adminRouter = Router();
+adminRouter.use(authenticate);
+adminRouter.use(tenantContext);
+
 // Announcement routes with custom permissions checks
 
 /**
@@ -104,7 +112,7 @@ router.use(tenantContext);
  *       201:
  *         description: Announcement created.
  */
-router.post('/', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR', 'BRANCH_MANAGER']), validate(createAnnouncementSchema), AnnouncementController.create);
+adminRouter.post('/', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR', 'BRANCH_MANAGER']), validate(createAnnouncementSchema), AnnouncementController.create);
 
 /**
  * @swagger
@@ -134,7 +142,7 @@ router.post('/', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR', 'BRANCH_MANAGE
  *       200:
  *         description: Announcement updated.
  */
-router.put('/:id', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR', 'BRANCH_MANAGER']), validate(updateAnnouncementSchema), AnnouncementController.update);
+adminRouter.put('/:id', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR', 'BRANCH_MANAGER']), validate(updateAnnouncementSchema), AnnouncementController.update);
 
 /**
  * @swagger
@@ -158,7 +166,7 @@ router.put('/:id', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR', 'BRANCH_MANA
  *       200:
  *         description: Announcement deleted.
  */
-router.delete('/:id', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR', 'BRANCH_MANAGER']), AnnouncementController.delete);
+adminRouter.delete('/:id', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR', 'BRANCH_MANAGER']), AnnouncementController.delete);
 
 /**
  * @swagger
@@ -182,7 +190,7 @@ router.delete('/:id', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR', 'BRANCH_M
  *       200:
  *         description: Announcement details retrieved.
  */
-router.get('/:id', AnnouncementController.get);
+clientRouter.get('/:id', AnnouncementController.get);
 
 /**
  * @swagger
@@ -198,6 +206,6 @@ router.get('/:id', AnnouncementController.get);
  *       200:
  *         description: List of announcements.
  */
-router.get('/', AnnouncementController.list);
+clientRouter.get('/', AnnouncementController.list);
 
-export default router;
+export { clientRouter as clientAnnouncementRouter, adminRouter as adminAnnouncementRouter };

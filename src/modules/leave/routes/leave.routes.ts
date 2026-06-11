@@ -133,6 +133,14 @@ router.use(tenantContext);
  *           example: "Enjoy your leave"
  */
 
+const clientRouter = Router();
+clientRouter.use(authenticate);
+clientRouter.use(tenantContext);
+
+const adminRouter = Router();
+adminRouter.use(authenticate);
+adminRouter.use(tenantContext);
+
 // Employee paths
 
 /**
@@ -155,7 +163,7 @@ router.use(tenantContext);
  *       201:
  *         description: Leave applied successfully.
  */
-router.post('/apply', validate(applyLeaveSchema), LeaveController.apply);
+clientRouter.post('/apply', validate(applyLeaveSchema), LeaveController.apply);
 
 /**
  * @swagger
@@ -179,7 +187,7 @@ router.post('/apply', validate(applyLeaveSchema), LeaveController.apply);
  *       200:
  *         description: Leave cancelled successfully.
  */
-router.put('/:id/cancel', LeaveController.cancel);
+clientRouter.put('/:id/cancel', LeaveController.cancel);
 
 /**
  * @swagger
@@ -195,7 +203,7 @@ router.put('/:id/cancel', LeaveController.cancel);
  *       200:
  *         description: List of leave records.
  */
-router.get('/my/history', LeaveController.getHistory);
+clientRouter.get('/my/history', LeaveController.getHistory);
 
 /**
  * @swagger
@@ -211,7 +219,7 @@ router.get('/my/history', LeaveController.getHistory);
  *       200:
  *         description: List of balances.
  */
-router.get('/my/balances', LeaveController.getBalances);
+clientRouter.get('/my/balances', LeaveController.getBalances);
 
 // Admin/HR/Manager paths
 
@@ -240,7 +248,7 @@ router.get('/my/balances', LeaveController.getBalances);
  *       200:
  *         description: List of leave applications.
  */
-router.get('/logs', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR', 'BRANCH_MANAGER']), LeaveController.list);
+adminRouter.get('/logs', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR', 'BRANCH_MANAGER']), LeaveController.list);
 
 /**
  * @swagger
@@ -262,6 +270,6 @@ router.get('/logs', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR', 'BRANCH_MAN
  *       200:
  *         description: Leave status updated.
  */
-router.put('/process', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR', 'BRANCH_MANAGER']), validate(processLeaveSchema), LeaveController.process);
+adminRouter.put('/process', authorizeRole(['SUPER_ADMIN', 'ORG_ADMIN', 'HR', 'BRANCH_MANAGER']), validate(processLeaveSchema), LeaveController.process);
 
-export default router;
+export { clientRouter as clientLeaveRouter, adminRouter as adminLeaveRouter };

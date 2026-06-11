@@ -1846,6 +1846,7 @@ export const AttendanceScalarFieldEnum = {
   workingHours: 'workingHours',
   notes: 'notes',
   corrections: 'corrections',
+  activities: 'activities',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

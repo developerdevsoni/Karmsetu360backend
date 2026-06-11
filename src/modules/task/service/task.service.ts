@@ -7,21 +7,44 @@ export class TaskService {
   public static async createTask(
     orgId: string,
     creatorId: string,
-    data: { employeeId: string; title: string; description?: string; dueDate?: Date }
+    role: string,
+    data: { employeeId?: string; title: string; description?: string; dueDate?: Date }
   ) {
-    // Check if the employee exists in this organization
-    const employee = await prisma.employee.findFirst({
-      where: {
-        id: data.employeeId,
-        organizationId: orgId
-      }
-    });
+    let targetEmployeeId = data.employeeId;
 
-    if (!employee) {
-      throw new AppError('Target employee profile not found in this organization.', 404);
+    if (role === 'EMPLOYEE') {
+      const employee = await prisma.employee.findUnique({
+        where: { userId: creatorId }
+      });
+
+      if (!employee) {
+        throw new AppError('Employee profile not found.', 404);
+      }
+
+      if (targetEmployeeId && targetEmployeeId !== employee.id) {
+        throw new AppError('Standard employees can only create and assign tasks to themselves.', 403);
+      }
+
+      targetEmployeeId = employee.id;
+    } else {
+      if (!targetEmployeeId) {
+        throw new AppError('employeeId is required to assign a task.', 400);
+      }
+
+      // Check if the employee exists in this organization
+      const employee = await prisma.employee.findFirst({
+        where: {
+          id: targetEmployeeId,
+          organizationId: orgId
+        }
+      });
+
+      if (!employee) {
+        throw new AppError('Target employee profile not found in this organization.', 404);
+      }
     }
 
-    return TaskRepository.create(orgId, data.employeeId, creatorId, data);
+    return TaskRepository.create(orgId, targetEmployeeId, creatorId, data);
   }
 
   public static async listTasks(

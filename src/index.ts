@@ -8,11 +8,15 @@ import rateLimit from 'express-rate-limit';
 import path from 'path';
 import { logger } from './config/logger';
 import { setupSwagger } from './config/swagger';
-import router from './routes';
+import { clientRouter, adminRouter } from './routes';
 import { errorHandler } from './middlewares/error.middleware';
+import { requestLogger } from './middlewares/logging.middleware';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Request Logging Middleware
+app.use(requestLogger);
 
 // Security Middlewares
 app.use(helmet());
@@ -39,8 +43,12 @@ app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 setupSwagger(app);
 
 // Mount main routes
-app.use('/api', router);
-app.use('/api/v1', router);
+app.use('/api/v1/client', clientRouter);
+app.use('/api/v1/admin', adminRouter);
+
+// Backwards compatibility for legacy root prefixes mapping to client routes
+app.use('/api', clientRouter);
+app.use('/api/v1', clientRouter);
 
 // Health check endpoint
 app.get('/health', (req, res) => {

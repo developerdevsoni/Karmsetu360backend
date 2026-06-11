@@ -100,4 +100,58 @@ export class AttendanceController {
       next(error);
     }
   }
+
+  public static async getTodayStatus(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userId = req.user?.userId;
+      const orgId = req.user?.organizationId;
+      const result = await AttendanceService.getTodayStatus(userId!, orgId!);
+      return sendResponse(res, 200, true, "Today's attendance status retrieved successfully.", result);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  public static async exportSelfHistory(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userId = req.user?.userId;
+      const orgId = req.user?.organizationId;
+      const { startDate, endDate, format } = req.query;
+      
+      const { buffer, filename, mimeType } = await AttendanceService.exportSelfHistory(
+        userId!,
+        orgId!,
+        startDate as string,
+        endDate as string,
+        format as 'excel' | 'csv'
+      );
+
+      const ext = format === 'csv' ? 'csv' : 'xlsx';
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}.${ext}"`);
+      res.setHeader('Content-Type', mimeType);
+      return res.send(buffer);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  public static async exportLogs(req: Request, res: Response, next: NextFunction) {
+    try {
+      const orgId = req.tenant?.organizationId;
+      const { format, ...filters } = req.query;
+
+      const { buffer, filename, mimeType } = await AttendanceService.exportLogs(
+        orgId!,
+        filters,
+        format as 'excel' | 'csv'
+      );
+
+      const ext = format === 'csv' ? 'csv' : 'xlsx';
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}.${ext}"`);
+      res.setHeader('Content-Type', mimeType);
+      return res.send(buffer);
+    } catch (error) {
+      next(error);
+    }
+  }
 }
